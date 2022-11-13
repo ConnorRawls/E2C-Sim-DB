@@ -18,16 +18,9 @@ def main():
     #just for testing purposes
     if DEBUG == True: debugTest(cur)
 
-    #what else goes in the eet table??????? missing data here
-    eet = """ CREATE TABLE eet (
-                task_id INT NOT NULL,
-                machine_id INT NOT NULL,
-
-                FOREIGN KEY (task_id) REFERENCES task_type(task_id),
-                FOREIGN KEY (machine_id) REFERENCES machine_type(machine_id)
-    ); """
-
-    machine_type = """ CREATE TABLE machine_type (
+    # Machine Types
+    # Pre-defined table of machine types and their characteristics.
+    machine_types = """ CREATE TABLE machine_types (
                 machine_id INT PRIMARY KEY,
                 no_of_replicas INT NOT NULL,
                 idle_power FLOAT NOT NULL,
@@ -37,14 +30,29 @@ def main():
                 memory FLOAT NOT NULL
     ); """
 
-    #need to add the "detail" attribute, wtf is detail?
-    task_type = """ CREATE TABLE task_type (
+    # Task Types
+    # Pre-defined table of task types and their characteristics.
+    task_types = """ CREATE TABLE task_types (
                 task_id INT PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
-            
                 urgency FLOAT NOT NULL
     ); """
 
+    # Expected Execution Time
+    # Derived from task_types & machine_types.
+    # Each entry contained expected execution time of task type on given
+    # machine type.
+    eet = """ CREATE TABLE eet (
+                task_id INT NOT NULL,
+                machine_id INT NOT NULL,
+                expected_ex_time FLOAT NOT NULL,
+
+                FOREIGN KEY (task_id) REFERENCES task_types(task_id),
+                FOREIGN KEY (machine_id) REFERENCES machine_types(machine_id)
+    ); """
+
+    # Scenario
+    # Characterization of distribution of tasks.
     scenario = """ CREATE TABLE scenario (
                 scenario_id INT PRIMARY KEY,
                 task_id INT NOT NULL,
@@ -52,48 +60,44 @@ def main():
                 end_time FLOAT NOT NULL,
                 num_of_tasks INT NOT NULL,
                 dist_id INT NOT NULL,
-                FOREIGN KEY (task_id) REFERENCES task_type(task_id),
+                FOREIGN KEY (task_id) REFERENCES task_types(task_id),
                 FOREIGN KEY (dist_id) REFERENCES distribution(dist_id)
     ); """
 
+    # Distribution
+    # Possible distribution schemes for task scenarios.
     distribution = """ CREATE TABLE distribution (
                     dist_id INT PRIMARY KEY,
                     name VARCHAR(255) NOT NULL
     ); """
 
+    # Workload
+    # Honestly idk
+    workload = """ CREATE TABLE workload (
+                work_id INT PRIMARY KEY,
+                task_id INT NOT NULL,
+                scenario_id INT NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                arrival_time FLOAT NOT NULL,
 
+                FOREIGN KEY (task_id) REFERENCES task_types(task_id),
+                FOREIGN KEY (scenario_id) REFERENCES scenario(scenario_id)
+
+                SET name = (SELECT task_types.name FROM workload task_types WHERE workload.task_id = task_types.task_id) 
+    ); """
+
+    cur.execute(machine_types)
+    cur.execute(task_types)
     cur.execute(eet)
-    cur.execute(machine_type)
-    cur.execute(task_type)
     cur.execute(scenario)
     cur.execute(distribution)
+    cur.execute(workload)
     conn.commit()
 
     # with conn: # alternative to committing
 
     cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
     print(cur.fetchall())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     conn.close()
 
