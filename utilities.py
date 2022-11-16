@@ -83,3 +83,21 @@ def insertData(cur, conn, scenario_data):
         'VALUES (?, ?, ?, ?, ?, ?);', scenario_data
     )
     conn.commit()
+
+def createTable(cur, conn):
+    cur.execute('DROP TABLE IF EXISTS workload;')
+    conn.commit()
+
+    create_work_table = """ CREATE TABLE IF NOT EXISTS workload (
+        work_id INT PRIMARY KEY,
+        task_id INT NOT NULL,
+        scenario_id FLOAT NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        arrival_time FLOAT NOT NULL,
+
+        FOREIGN KEY (task_id) REFERENCES task_types(task_id),
+        FOREIGN KEY (scenario_id) REFERENCES scenario(scenario_id)
+    ); """
+
+    cur.execute(create_work_table)
+    conn.commit()
