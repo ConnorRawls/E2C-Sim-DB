@@ -1,31 +1,4 @@
-'''
-Create database from csv files and accept user input.
-Input is used to propagate test environment.
-'''
-
-import argparse
-import os
-import sqlite3 as sq
-import pandas as pd
-
-DEBUG = False
-CURR_PATH = os.getcwd()
-
-def main():
-    conn = sq.connect("e2cDB.db")
-    cur = conn.cursor()
-
-    createSchema(cur, conn)
-
-    # with conn: # alternative to committing
-
-    cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    print(cur.fetchall())
-
-    conn.close()
-
-# Utilities
-# --------------------------------------------------------------------
+# Initializes schemas for our specific use-case
 def createSchema(cur, conn):
     # Machine Types
     # Pre-defined table of machine types and their characteristics.
@@ -102,48 +75,11 @@ def fetchData(file_path):
 
     return data
 
-def debugMain():
-    conn = sq.connect("e2cDB.db")
-    cur = conn.cursor()
-
-    # Set up schema
-    createSchema(cur, conn)
-
-    scenario_path = CURR_PATH + '/testScenario.csv'
-    scenario_data = fetchData(scenario_path)
-
-    print(f'Length of scenario data: {len(scenario_data)}')
-    print(f'Example entry: {scenario_data[0]}')
-
+# Takes tuples and inserts them into a table
+def insertData(cur, conn, scenario_data):
     cur.executemany(
-        'INSERT INTO scenario ' \
+        'INSERT OR IGNORE INTO scenario ' \
         '(scenario_id, task_id, start_time, end_time, num_of_tasks, dist_id) ' \
         'VALUES (?, ?, ?, ?, ?, ?);', scenario_data
     )
     conn.commit()
-
-    conn.close()
-
-def debugTest(cur):
-    cur.execute("DROP TABLE IF EXISTS eet")
-    cur.execute("DROP TABLE IF EXISTS machine_type")
-    cur.execute("DROP TABLE IF EXISTS task_type")
-    cur.execute("DROP TABLE IF EXISTS scenario")
-    cur.execute("DROP TABLE IF EXISTS distribution")
-
-def init():
-    global DEBUG
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--debug', help = "run a short debug test", action = "store_true")
-    args = parser.parse_args()
-
-    if args.debug:
-        DEBUG = True
-        print('Running in debug mode.')
-
-if __name__ == '__main__':
-    init()
-
-    if DEBUG == True: debugMain()
-    else: main()
