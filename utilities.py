@@ -1,4 +1,5 @@
 # Initializes schemas for our specific use-case
+# createSchema(Cursor, Connection, [str])
 def createSchema(cur, conn, schemas):
     if type(schemas) is not list: schemas = [schemas]
 
@@ -6,6 +7,7 @@ def createSchema(cur, conn, schemas):
     conn.commit()
 
 # Fetches data from .csv and converts to list of tuples
+# [(str)] fromCSV(str)
 def fromCSV(file_path):
     data = []
 
@@ -22,6 +24,7 @@ def fromCSV(file_path):
 
 # Need to double check if can insert single entry as list
 # Takes tuples and inserts them into a table
+# insertData(Cursor, Connection, [(str)], str)
 def insertData(cur, conn, data, table):
     if type(data) is not list: data = [data]
 
@@ -32,6 +35,12 @@ def insertData(cur, conn, data, table):
     for _ in attributes: q_string = q_string + '?, '
     q_string = q_string[:-2] + ')'
 
+    # ***
+    # print(f'(utilities.py) *** {table} ***')
+    # print(f'(utilities.py) attributes: {attributes}')
+    # print(f'(utilities.py) q_string: {q_string}')
+    # print(f'(utilities.py) data: {data}')
+
     # Ignores repetitive data
     cur.executemany(
         f'INSERT OR IGNORE INTO {table} ' \
@@ -40,6 +49,7 @@ def insertData(cur, conn, data, table):
     )
     conn.commit()
 
+# [(str)] fetchAttributes(Cursor, str)
 def fetchAttributes(cur, table):
     cur.execute(f'PRAGMA table_info({table});')
     raw_info = cur.fetchall()
@@ -48,3 +58,20 @@ def fetchAttributes(cur, table):
     for tuple in raw_info: attributes = attributes + (tuple[1],)
 
     return attributes
+
+# printTable(Cursor, str)
+def printTable(cur, table):
+    cur.execute(f'SELECT * FROM {table} LIMIT 10;')
+    print(cur.fetchall())
+    print('...')
+
+# deleteTables(Cursor, Connection, [str])
+def deleteTables(cur, conn, tables):
+    if type(tables) is not list: tables = [tables]
+
+    # ***
+    # print(f'(utilities.py) tables: {tables}')
+
+    for table in tables:
+        cur.execute(f'DROP TABLE IF EXISTS {table};')
+        conn.commit()
