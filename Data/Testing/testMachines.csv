@@ -1,3 +1,0 @@
-machine_id,no_of_replicas,idle_power,max_power,num_of_cores,cpu_clock,memory
-1,4,23,7000,6,2.3,6
-2,2,13,5000,16,3.7,3

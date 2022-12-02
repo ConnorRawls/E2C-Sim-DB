@@ -1,4 +1,4 @@
-# Initializes schemas for our specific use-case
+# Initializes schemas utilizing given docstring
 # createSchema(Cursor, Connection, [str])
 def createSchema(cur, conn, schemas):
     if type(schemas) is not list: schemas = [schemas]
@@ -22,7 +22,6 @@ def fromCSV(file_path):
 
     return data
 
-# Need to double check if can insert single entry as list
 # Takes tuples and inserts them into a table
 # insertData(Cursor, Connection, [(str)], str)
 def insertData(cur, conn, data, table):
@@ -49,7 +48,8 @@ def insertData(cur, conn, data, table):
     )
     conn.commit()
 
-# [(str)] fetchAttributes(Cursor, str)
+# Returns tuple of attributes from given table
+# (str) fetchAttributes(Cursor, str)
 def fetchAttributes(cur, table):
     cur.execute(f'PRAGMA table_info({table});')
     raw_info = cur.fetchall()

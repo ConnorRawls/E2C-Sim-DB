@@ -1,13 +1,12 @@
 '''
-Create database from csv files and accept user input.
-Input is used to propagate test environment.
+Proving grounds.
 '''
 
 import os
 import sqlite3 as sq
 import pandas as pd
 import workload as wl
-from utilities import createSchema, fromCSV, insertData, printTable, deleteTables
+from Utilities.utilities import *
 
 CURR_PATH = os.getcwd()
 

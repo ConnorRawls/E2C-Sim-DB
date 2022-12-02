@@ -1,0 +1,4 @@
+machine_id,machine_name,no_of_replicas,idle_power,max_power,num_of_cores,cpu_clock,memory
+1,m1,1,10,100,NULL,NULL,NULL
+2,m2,1,5,300,NULL,NULL,NULL
+3,m3,1,5,10,NULL,NULL,NULL
