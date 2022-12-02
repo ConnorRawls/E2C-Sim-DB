@@ -1,3 +1,4 @@
+import sys
 # Initializes schemas utilizing given docstring
 # createSchema(Cursor, Connection, [str])
 def createSchema(cur, conn, schemas):
@@ -41,11 +42,18 @@ def insertData(cur, conn, data, table):
     # print(f'(utilities.py) data: {data}')
 
     # Ignores repetitive data
-    cur.executemany(
-        f'INSERT OR IGNORE INTO {table} ' \
-        f'{attributes} ' \
-        f'VALUES {q_string};', data
-    )
+    try:
+        cur.executemany(
+            f'INSERT OR IGNORE INTO {table} ' \
+            f'{attributes} ' \
+            f'VALUES {q_string};', data
+        )
+    except:
+        print(table)
+        print(data)
+        print(attributes)
+        print(q_string)
+        sys.exit()
     conn.commit()
 
 # Returns tuple of attributes from given table

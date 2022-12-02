@@ -8,7 +8,7 @@ from Utilities.utilities import *
 # Develop and propagate workload table
 # createWorkload(Cursor, Connection, int)
 def createWorkload(cur, conn, num_wl):
-    init()
+    init(cur, conn)
 
     # Fetch from scenario table
     scenario_df = pd.read_sql_query('SELECT * FROM scenario', conn)
@@ -18,8 +18,8 @@ def createWorkload(cur, conn, num_wl):
         print(f'Count: {count}')
         t_instances = {}
         # For each scenario create list of distributed instances
+        row_id = 1
         for _, row in scenario_df.iterrows():
-            scenario_id = int(row['scenario_id'])
             task_id = row['task_id']
             start_time = float(row['start_time'])
             end_time = float(row['end_time'])
@@ -40,9 +40,10 @@ def createWorkload(cur, conn, num_wl):
             # ***
             # print(f'(workload.py) dist_id: {dist_id}')
 
-            t_instances[(task_id, scenario_id, task_name)] = \
+            t_instances[(task_id, row_id, task_name)] = \
                 fetchArrivals(start_time, end_time, num_of_tasks, dist_id, cur)
 
+            row_id += 1
             # ***
             # print(f'(workload.py) t_instances: {t_instances[(task_id, scenario_id, task_name)]}')
 
@@ -59,15 +60,16 @@ def createWorkload(cur, conn, num_wl):
         workload.sort(key = lambda x: x[2])
 
         # Needed to sort before adding work_id
-        work_id = 1
+        instance_id = 1
         for i in range(len(workload)):
             entry = workload[i]
-            entry = (work_id,) + entry
+            entry = (instance_id,) + entry
             workload[i] = entry
-            work_id += 1
+            instance_id += 1
 
         # Create workload schema
-        workload_schema = f""" CREATE TABLE IF NOT EXISTS workload{count} (
+        workload_schema = f""" CREATE TABLE IF NOT EXISTS workload{count+1} (
+            instance_id INT PRIMARY KEY,
             task_id INT NOT NULL,
             name VARCHAR(255) NOT NULL,
             arrival_time FLOAT NOT NULL,
@@ -84,7 +86,7 @@ def createWorkload(cur, conn, num_wl):
         # sys.exit()
 
         # Merge list into workload table
-        insertData(cur, conn, workload, f'workload{count}')
+        insertData(cur, conn, workload, f'workload{count+1}')
 
 # Creates list of task instances from distribution scheme
 # [int] fetchArrivals(float, float, int, int, Cursor)

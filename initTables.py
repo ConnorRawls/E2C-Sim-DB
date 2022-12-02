@@ -12,11 +12,9 @@ DIST_PATH = CURR_PATH + '/Data/Default/distribution.csv'
 MIN_EX = 0.01
 MAX_EX = 1.0
 
-db_path = CURR_PATH + '/Data/e2cDB.db'
-conn = sq.connect(db_path)
-cur = conn.cursor()
 
-def initTables():
+
+def initTables(cur, conn):
     # Remove all tables just b/c
     # --------------------------------------------------------------
     cur.execute("SELECT * FROM sqlite_master where type = 'table';")
