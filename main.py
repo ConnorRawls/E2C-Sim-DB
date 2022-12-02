@@ -1,7 +1,7 @@
 from Utilities.utilities import *
 from initTables import *
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import QDir
 from Utilities.utilities import createSchema, fromCSV, insertData, printTable, deleteTables
 import workload as wl
@@ -139,19 +139,27 @@ class Ui_MainWindow(object):
         self.menuE2C_Sim_Database_Demo.setTitle(_translate("MainWindow", "E2C-Sim Database Demo"))
 
     def delete(self):
-        self.id = ""
-        self.id_to_del = self.id_to_delete.text()
-        self.table = self.which_to_delete.currentText()
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Information)
+        msgBox.setText("Are you sure you want to delete?")
+        msgBox.setWindowTitle("Delete Row")
+        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        returnValue = msgBox.exec()
 
-        if(self.table == "machine_types"):
-            self.id = "machine_id"
-        if(self.table == "task_types"):
-            self.id = "task_id"
-        if(self.table == "distribution"):
-            self.id = "dist_id"
+        if returnValue == QMessageBox.Ok:
+            self.id = ""
+            self.id_to_del = self.id_to_delete.text()
+            self.table = self.which_to_delete.currentText()
 
-        cur.execute(f"DELETE FROM {self.table} WHERE {self.id} = {self.id_to_del};")
-        conn.commit()
+            if(self.table == "machine_types"):
+                self.id = "machine_id"
+            if(self.table == "task_types"):
+                self.id = "task_id"
+            if(self.table == "distribution"):
+                self.id = "dist_id"
+
+            cur.execute(f"DELETE FROM {self.table} WHERE {self.id} = {self.id_to_del};")
+            conn.commit()
 
     def update_row(self):
         self.entry = self.fields.text().split(",")
